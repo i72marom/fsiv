@@ -3,5 +3,6 @@ PROJECT(p1)
 FIND_PACKAGE(OpenCV 	REQUIRED )
 LINK_LIBRARIES(${OpenCV_LIBS})
 include_directories ("${OpenCV_INCLUDE_DIRS}")
+set(SOURCE_FILES src/practica1.cc src/funciones.cc)
 
-add_executable(realce src/practica1.cc)
+add_executable(realce ${SOURCE_FILES})

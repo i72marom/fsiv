@@ -9,25 +9,13 @@
 
 */
 
-#include <iostream>
-#include <exception>
-
-//Includes para OpenCV, Descomentar según los módulo utilizados.
-#include <opencv2/core/core.hpp>
-#include <opencv2/core/utility.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/calib3d/calib3d.hpp>
+#include "funciones.h"
 
 const cv::String keys =
 	"{help h usage ? |      | print this message   }"
 	"{path           |.     | path to file         }"
-	"{fps            | -1.0 | fps for output video }"
-	"{N count        |100   | count of objects     }"
-	"{ts timestamp   |      | use time stamp       }"
 	"{@image1        |      | image1 for compare   }"
 	"{@image2        |<none>| image2 for compare   }"
-	"{@repeat        |1     | number               }"
 	;
 
 int main (int argc, char* const* argv) {
@@ -41,33 +29,34 @@ int main (int argc, char* const* argv) {
 			parser.printMessage();
 			return 0;
 		}
-		int N = parser.get<int>("N");
-		double fps = parser.get<double>("fps");
-		cv::String path = parser.get<cv::String>("path");
-		bool use_time_stamp = parser.has("timestamp");
+		
 		cv::String img1 = parser.get<cv::String>("@image1");
 		cv::String img2 = parser.get<cv::String>("@image2");
-		int repeat = parser.get<int>("@repeat");
+		
 		if (!parser.check()) {
 			parser.printErrors();
 			return 0;
 		}
 
 		// leo la imagen
-		cv::Mat img = cv::imread(img1, cv::IMREAD_UNCHANGED);
+		cv::Mat imagenes[2];
+		imagenes[0] = cv::imread(img1, cv::IMREAD_COLOR);
 
-		if (img.empty()) {
+		if (imagenes[0].empty()) {
 			std::cerr << "Error: no he podido abrir el fichero '" << img1 << "'." << std::endl;
 			return EXIT_FAILURE;
 		}
 
 		// creo la ventana
-		cv::namedWindow("IMG1");
+		cv::namedWindow("IMG");
 
 		// visualizo la imagen
-		cv::imshow("IMG", img);
+		cv::imshow("IMG", imagenes[0]);
 
-		while ((cv::waitKey(0) & 0xff) != 27); //Hasta que no se pulse la tecla ESC no salimos.
+		cv::setMouseCallback("IMG", onMouse, (void *)&imagenes);
+
+		if (cv::waitKey(0) != 27)
+			cv::imwrite(img2, imagenes[1]); //Hasta que no se pulse la tecla ESC no salimos.
 
 
 	}
