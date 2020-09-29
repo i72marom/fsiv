@@ -13,7 +13,6 @@
 
 const cv::String keys =
 	"{help h usage ? |      | print this message   }"
-	"{path           |.     | path to file         }"
 	"{@image1        |      | image1 for compare   }"
 	"{@image2        |<none>| image2 for compare   }"
 	;
