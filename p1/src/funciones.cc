@@ -1,3 +1,11 @@
+/**
+ * @author Manuel Mariscal
+ * @date 29/09/2020
+ * @file funciones.cc
+ * @brief Implementación de las funciones.
+ * @version 1.0
+ */
+
 #include "funciones.h"
 
 void onMouse(int event, int x, int y, int flags, void *imagenes) {

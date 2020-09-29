@@ -1,13 +1,10 @@
-/*!
-  Esto es un esqueleto de programa para usar en las prácticas
-  de Visión Artificial.
-
-  Se supone que se utilizará OpenCV.
-
-  Para compilar, puedes ejecutar:
-	g++ -Wall -o esqueleto esqueleto.cc `pkg-config opencv --cflags --libs`
-
-*/
+/**
+ * @author Manuel Mariscal
+ * @date 29/09/2020
+ * @file main.cc
+ * @brief Realce de una imagen seleccionando un rectangulo o un poligono.
+ * @version 1.0
+ */
 
 #include "funciones.h"
 
@@ -18,6 +15,16 @@ const cv::String keys =
 	"{@image2        |<none>| image2 for compare   }"
 	;
 
+
+/**
+ * @fn int main(int argc, char* const* argv)
+ * @brief Cuerpo del programa.
+ * @pre Se debe indicar la ruta y el nombre de una imagen origen y otra destino para guardar los resultados.
+ *
+ * El programa recibirá como argumento la ruta de la imagen en la que se desea realizar el realce y la ruta donde se guardará el resultado en caso de ser el esperado. Hay dos opciones de ejecución:
+ * @li Opción por defecto: permite realizar el realce seleccionando dos puntos de la imagen o seleccionando un area de forma interactiva. Una vez realizado el realce no se puede modificar.
+ * @li -p: Permite seleccionar varios puntos de forma que se genere un poligono. Una vez realizado el realce no se puede modificar.
+ */
 int main (int argc, char* const* argv) {
 	int retCode=EXIT_SUCCESS;
 
@@ -38,7 +45,7 @@ int main (int argc, char* const* argv) {
 			return 0;
 		}
 
-		// leo la imagen
+		
 		cv::Mat imagenes[2];
 		imagenes[0] = cv::imread(img1, cv::IMREAD_COLOR);
 
