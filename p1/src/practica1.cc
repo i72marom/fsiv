@@ -13,6 +13,7 @@
 
 const cv::String keys =
 	"{help h usage ? |      | print this message   }"
+	"{p 			 |      | ejecuta onMousePoligono   }"
 	"{@image1        |      | image1 for compare   }"
 	"{@image2        |<none>| image2 for compare   }"
 	;
@@ -52,11 +53,14 @@ int main (int argc, char* const* argv) {
 		// visualizo la imagen
 		cv::imshow("IMG", imagenes[0]);
 
-		cv::setMouseCallback("IMG", onMouse, (void *)&imagenes);
+		if (parser.has("p"))
+			cv::setMouseCallback("IMG", onMousePoligono, (void *)&imagenes);
+		else
+			cv::setMouseCallback("IMG", onMouse, (void *)&imagenes);
 
+		// Si se recibe una entrada distinta a ESC se guarda la imagen.
 		if (cv::waitKey(0) != 27)
-			cv::imwrite(img2, imagenes[1]); //Hasta que no se pulse la tecla ESC no salimos.
-
+			cv::imwrite(img2, imagenes[1]); 
 
 	}
 	

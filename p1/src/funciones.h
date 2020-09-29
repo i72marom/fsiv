@@ -28,6 +28,10 @@ void onMouse(int event, int x, int y, int flags, void *imagenes);
 
 void onMousePoligono(int event, int x, int y, int flags, void *imagenes);
 
+
 void setGrises(cv::Rect plano_ab, cv::Mat *imagenes);
+
+
+void setGrises(std::vector<cv::Point> &puntos, cv::Mat *imagenes);
 
 #endif
