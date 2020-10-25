@@ -46,16 +46,10 @@ void onMousePoligono(int event, int x, int y, int flags, void *imagenes);
 
 /**
  * Cambia a escala de grises los colores de los pixeles externos al rectángulo recibido y guarda el resultado en una matriz imagen por si es necesario almacenarla.
- * @param plano_ab Rectángulo seleccionado por el ratón en la función @b onMouse.
+ * @param mask     Mascara para transformar la imagen.
  * @param imagenes Vector de dos elementos con las imagenes.
  */
-void setGrises(cv::Rect plano_ab, cv::Mat *imagenes);
+void setGrises(cv::Mat mask, cv::Mat *imagenes);
 
-/**
- * Cambia a escala de grises los colores de los pixeles externos al polígono recibido y guarda el resultado en una matriz imagen por si es necesario almacenarla.
- * @param plano_ab Polígono seleccionado por el ratón en la función @b onMousePoligono.
- * @param imagenes Vector de dos elementos con las imagenes.
- */
-void setGrises(std::vector<cv::Point> &puntos, cv::Mat *imagenes);
 
 #endif

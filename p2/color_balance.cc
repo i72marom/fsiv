@@ -82,34 +82,7 @@ cv::Scalar mediaHistogramaBGR(cv::Mat const &in, int p) {
 	}
 
 	return cv::Scalar(b/n_puntos, g/n_puntos, r/n_puntos);
-	//return cv::Scalar(b/cb, g/cg, r/cr);
 }
-/*
-cv::Scalar mediaHistogramaBGR(cv::Mat const &in, int p) {
-	int hbins = 255; 
-	int channels[] = { 0 }; //index of channel
-	int histSize[] = { hbins };
-	float hranges[] = { 0, 255 };
-	const float* ranges[] = { hranges };
-	cv::MatND hist;
-
-	cv::Mat img_gris;
-	cv::cvtColor(in, img_gris, cv::COLOR_BGR2GRAY, 1);
-	
-	//cal histogram & normalization
-	cv::calcHist(&img_gris, 1, 0, cv::Mat(), hist, 1, histSize, ranges, true, false);
-
-	int n_puntos = cvRound(in.cols * in.rows*p/100);
-	int sum = 0, aux = 0;
-
-	for (int i = hbins; i > 0; i--) {
-		sum += i * hist.at<float>(i);
-		aux += hist.at<float>(i);
-		if (aux >= n_puntos) i = -1;
-	}
-
-	return cv::Scalar(sum/n_puntos, sum/n_puntos, sum/n_puntos);
-}*/
 
 /**
  * @brief Apply a "gray world" color balance operation to the image.
@@ -227,7 +200,7 @@ main (int argc, char* const* argv)
 
 		//TODO
 		cv::Mat img_in, img_out;
-		img_in = cv::imread(input_n, cv::IMREAD_COLOR);
+		img_in = cv::imread(input_n, cv::IMREAD_UNCHANGED);
 		
 		cv::namedWindow("IMG");
 		cv::imshow("IMG", img_in);
@@ -238,7 +211,16 @@ main (int argc, char* const* argv)
 		cv::namedWindow("IMG2");
 		cv::imshow("IMG2", img_out);
 
-		cv::waitKey(0);
+		while (true) {
+			int key = cv::waitKey(0);
+			if (key == 27) break;
+			else {
+				cv::imwrite(output_n, img_out);
+				break;
+			}
+		}
+
+
 //		if (cv::waitKey(0) != 27)
 //			cv::imwrite(img2, img_out);
 	}

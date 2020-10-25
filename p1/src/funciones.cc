@@ -9,15 +9,15 @@
 #include "funciones.h"
 
 void onMouse(int event, int x, int y, int flags, void *imagenes) {
-	cv::Mat imagen_local = static_cast<cv::Mat *> (imagenes)[0].clone();
+	cv::Mat img_loc = static_cast<cv::Mat *> (imagenes)[0].clone();
 	static bool punto_a_ok = false, punto_b_ok = false;
 	static bool levanta_boton = false, mueve_raton = false;
 	static cv::Point punto_a, punto_b;
 
 	if (punto_a_ok  && !punto_b_ok) {
 		if (event == cv::EVENT_MOUSEMOVE) {
-			cv::rectangle(imagen_local, punto_a, cv::Point(x, y), cv::Scalar(5,252,116));
-			cv::imshow("IMG", imagen_local);
+			cv::rectangle(img_loc, punto_a, cv::Point(x, y), cv::Scalar(5,252,116));
+			cv::imshow("IMG", img_loc);
 		}
 
 		if (event == cv::EVENT_MOUSEMOVE && !levanta_boton) mueve_raton = true;
@@ -28,8 +28,13 @@ void onMouse(int event, int x, int y, int flags, void *imagenes) {
 			punto_b.x = x;
 			punto_b.y = y;
 			cv::Rect plano_ab(punto_a, punto_b);
-			cv::rectangle(imagen_local, plano_ab, cv::Scalar(5,252,116));
-			setGrises(plano_ab, static_cast<cv::Mat *> (imagenes));
+			cv::rectangle(img_loc, plano_ab, cv::Scalar(5,252,116));
+
+			// generamos la mascara
+			cv::Mat mask(img_loc.rows, img_loc.cols, CV_8U, cv::Scalar::all(0));
+			cv::rectangle(mask, plano_ab, cv::Scalar::all(255), CV_FILLED, cv::LINE_AA);
+
+			setGrises(mask, static_cast<cv::Mat *> (imagenes));
 		}
 	} else if (event == cv::EVENT_LBUTTONDOWN) {
 		punto_a_ok = true;
@@ -39,77 +44,46 @@ void onMouse(int event, int x, int y, int flags, void *imagenes) {
 }
 
 void onMousePoligono(int event, int x, int y, int flags, void *imagenes) {
-	static cv::Mat imagen_local_estatica = static_cast<cv::Mat *> (imagenes)[0].clone();
-	cv::Mat imagen_local = imagen_local_estatica.clone();
+	static cv::Mat img_estat = static_cast<cv::Mat *> (imagenes)[0].clone();
+	cv::Mat img_loc = img_estat.clone();
 	static std::vector<cv::Point> puntos;
 	static bool ok = false;
 
 	if (!ok) {
 		if (event == cv::EVENT_MOUSEMOVE && !puntos.empty()) {
-			cv::line(imagen_local, puntos.back(), cv::Point(x,y), cv::Scalar(5,252,116));
-			cv::imshow("IMG", imagen_local);
+			cv::line(img_loc, puntos.back(), cv::Point(x,y), cv::Scalar(5,252,116));
+			cv::imshow("IMG", img_loc);
 		}
 
 		if (event == cv::EVENT_LBUTTONDOWN) {
 			if (!puntos.empty()) 
-				cv::line(imagen_local_estatica, puntos.back(), cv::Point(x,y), cv::Scalar(5,252,116));
+				cv::line(img_estat, puntos.back(), cv::Point(x,y), cv::Scalar(5,252,116));
 
 			puntos.push_back(cv::Point(x,y));
 		}
 
 		if (event == cv::EVENT_RBUTTONUP && puntos.size() > 2) {
-			setGrises(puntos, static_cast<cv::Mat *> (imagenes));
+			// generamos la mascara
+			cv::Mat mask(img_loc.rows, img_loc.cols, CV_8U, cv::Scalar::all(0));
+			cv::fillPoly(mask, puntos, cv::Scalar::all(255), cv::LINE_4);
+
+			setGrises(mask, static_cast<cv::Mat *> (imagenes));
 			ok = true;
 		}
 	}
 }
 
-void setGrises(cv::Rect plano_ab, cv::Mat *imagenes) {
-	cv::Mat imagen_local = imagenes[0].clone();
+void setGrises(cv::Mat mask, cv::Mat *imagenes) {
+	cv::Mat color = imagenes[0].clone();
 
-	for (int i = 0; i < imagen_local.rows; ++i) {
-
-		// cv::Mat::ptr<T>(int r): Forma eficiente y rápida de iterar sobre 
-		// píxeles en un objeto para obtener un puntero al principio de la fila
-		cv::Vec3b *ptr = imagen_local.ptr<cv::Vec3b>(i);
-
-		for (int j = 0; j < imagen_local.cols; ++j) {
-			if (!plano_ab.contains(cv::Point(j, i))) {
-				uchar gris = (ptr[j][0] + ptr[j][1] + ptr[j][2]) / 3;
-
-				ptr[j][0] = gris;
-				ptr[j][1] = gris;
-				ptr[j][2] = gris;
-			}
-		}
-	}
+	// generamos la imagen en gris
+	cv::Mat gris;
+	cv::cvtColor(color, gris, cv::COLOR_BGR2GRAY);
+	cv::cvtColor(gris, gris, cv::COLOR_GRAY2BGR);
 	
-	cv::imshow("IMG", imagen_local);
-	imagenes[1] = imagen_local.clone();
-}
+	// combinamos las imagenes a traves de la mascara
+	color.copyTo(gris, mask);	
 
-void setGrises(std::vector<cv::Point> &puntos, cv::Mat *imagenes) {
-	cv::Mat imagen_local = imagenes[0].clone();
-
-	for (int i = 0; i < imagen_local.rows; ++i) {
-
-		// cv::Mat::ptr<T>(int r): Forma eficiente y rápida de iterar sobre 
-		// píxeles en un objeto para obtener un puntero al principio de la fila
-		cv::Vec3b *ptr = imagen_local.ptr<cv::Vec3b>(i);
-
-		for (int j = 0; j < imagen_local.cols; ++j) {
-			if (cv::pointPolygonTest(cv::InputArray(puntos), cv::Point(j, i), 
-				false) == -1) {
-				
-				uchar gris = (ptr[j][0] + ptr[j][1] + ptr[j][2]) / 3;
-
-				ptr[j][0] = gris;
-				ptr[j][1] = gris;
-				ptr[j][2] = gris;
-			}
-		}
-	}
-	
-	cv::imshow("IMG", imagen_local);
-	imagenes[1] = imagen_local.clone();
+	cv::imshow("IMG", gris);
+	imagenes[1] = gris.clone();
 }
