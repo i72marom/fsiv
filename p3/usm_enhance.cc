@@ -58,17 +58,18 @@ cv::Mat fsiv_create_gaussian_filter(const int r) {
 	CV_Assert(r>0);
 
 	//TODO
-	int d = 2*r+1;
-	float s = pow(d/6.0, 2), m = 0;
+	int d   = 2*r+1;
+	float s = pow(d/6.0, 2);
+	float m = 0;
 	float c = 1.0/(2*3.14*s);
 
 	cv::Mat g_filter(d, d, CV_32FC1, cv::Scalar(1.0));
 
 	for (int i = 0; i < d; ++i) {
 		for (int j = 0; j < d; ++j) {
-			int n = -(i*i+j*j);
+			int n                    = -(pow(i-r/2, 2) + pow(j-r/2, 2));
 			g_filter.at<float>(i, j) = c * pow(2.7182, n/(2*s));
-			m += g_filter.at<float>(i, j);
+			m                        += g_filter.at<float>(i, j);
 		}
 	}
 
@@ -141,7 +142,7 @@ cv::Mat fsiv_convolve(cv::Mat const& in, cv::Mat const& filter, const bool circu
 
 	//TODO
 	cv::Mat extend = fsiv_fill_expansion(in, (filter.cols-1)/2);
-	cv::Mat out = cv::Mat::zeros(in.size(), CV_32FC1);
+	cv::Mat out    = cv::Mat::zeros(in.size(), CV_32FC1);
 
 	for (int i = 0; i < in.rows; ++i) {
 		for (int j = 0; j < in.cols; ++j)
@@ -176,7 +177,7 @@ cv::Mat fsiv_usm_enhance(cv::Mat  const& in, float g=1.0, int r=1, int filter_ty
 	if (filter_type == 1) f = fsiv_create_gaussian_filter(r);
 
 	cv::Mat conv = fsiv_convolve(in, f);
-	cv::Mat usm = (g+1) * in - (g * conv);
+	cv::Mat usm  = (g+1) * in - (g * conv);
 
 	cv::namedWindow("conv");
 	imshow("conv", conv);
@@ -265,9 +266,9 @@ main (int argc, char* const* argv)
 
 		//TODO
 		//manage the CLI parameters.
-		int r = parser.get<int>("r");
+		int r   = parser.get<int>("r");
 		float g = parser.get<float>("g");
-		int f = parser.get<int>("f");
+		int f   = parser.get<int>("f");
 
 		cv::String input_n = parser.get<cv::String>("@input");
 		cv::String output_n = parser.get<cv::String>("@output");
